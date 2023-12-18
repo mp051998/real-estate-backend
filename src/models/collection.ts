@@ -1,4 +1,4 @@
-import { Db, Document, Filter, OptionalId, UpdateFilter } from 'mongodb'; // Import the Document type from the mongodb package
+import { Db, Document, Filter, FindOptions, OptionalId, UpdateFilter } from 'mongodb'; // Import the Document type from the mongodb package
 
 import { db as _db } from '../app';
 
@@ -6,6 +6,9 @@ import { db as _db } from '../app';
 export class Collection {
   name: any;
   db: Db = _db;
+  project = {
+    '_id': 0
+  };
 
   constructor(name: any) {
     this.name = name;
@@ -13,19 +16,41 @@ export class Collection {
     console.log(`db: ${this.db}`);
   }
 
+  async count(query: Filter<Document>) {
+    await this.ensureCollectionExists();
+    return await this.db.collection(this.name).countDocuments(query);
+  }
+
   async insertOne(data: OptionalId<Document>) {
     await this.ensureCollectionExists();
     return await this.db.collection(this.name).insertOne(data);
   }
 
+  async insertMany(data: OptionalId<Document>[]) {
+    await this.ensureCollectionExists();
+    return await this.db.collection(this.name).insertMany(data);
+  }
+
   async findOne(query: Filter<Document>) {
     await this.ensureCollectionExists();
-    return await this.db.collection(this.name).findOne(query);
+    const result = await this.db.collection(this.name).findOne(query).then((response) => {
+      return response;
+    });
+    return result;
+    
   }
 
   async findMany(query: Filter<Document>) {
     await this.ensureCollectionExists();
     return await this.db.collection(this.name).find(query).toArray();
+  }
+
+  async findManyPaginated(query: Filter<Document>, project: Object | undefined, page: number, size: number) {
+    await this.ensureCollectionExists();
+    const options = {
+      projection: project || this.project,
+    }
+    return await this.db.collection(this.name).find(query, options).skip((page - 1) * size).limit(size).toArray();
   }
 
   async updateOne(query: Filter<Document>, data: UpdateFilter<Document> | Partial<Document>) {

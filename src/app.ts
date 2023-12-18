@@ -1,15 +1,20 @@
+import * as dotenv from 'dotenv';
+
 import express, { Request, Response } from 'express';
 
 import { Db } from 'mongodb';
 import { RealEstatePropertiesRoute } from './routes/realEstateProperties';
 import { connectToDB } from './database/mongodb';
-import dotenv from 'dotenv';
+import cors from 'cors';
 
 // Load the environment variables
 dotenv.config();
 
 const app = express();
 const port = 3090;
+
+// Enable CORS
+app.use(cors());
 
 let db: Db;
 (async () => {
