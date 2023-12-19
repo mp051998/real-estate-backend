@@ -2,19 +2,6 @@ import { Request, Response } from 'express';
 
 import { RealEstatePropertiesModel } from '../models/realEstatePropertiesModel';
 
-// interface RealEstateProperty {
-//   id: number;
-//   name: string;
-//   price: string;
-//   propertyType: string;
-//   locality: string;
-//   state: string;
-//   area: string;
-//   bedrooms: string;
-//   images: string[];
-//   description?: string;
-// }
-
 export class RealEstatePropertiesRoute {
   app: any;
   
@@ -26,18 +13,19 @@ export class RealEstatePropertiesRoute {
     app.get('/api/real-estate-properties', this.getProperties);
     app.get('/api/real-estate-properties/:id', this.getPropertyById);
     
-    console.log("Registered both RealEstateProperties route");
+    console.log("Registered RealEstateProperties route(s)");
   }
 
   async getProperties(req: Request, res: Response) {
     // Get the request arguments with default values
-    const { page = '1', size = '10' } = req.query;
+    const { page = '1', size = '10', states = '' } = req.query;
+    const parsedStates = (typeof states === 'string') && states.length > 0 ? states.split(',') : [];
     const parsedPage = parseInt(page.toString(), 10);
     const parsedSize = parseInt(size.toString(), 10);
 
     // Logic to fetch all real estate properties from the database
     const realEstatePropertiesModel = new RealEstatePropertiesModel();
-    const { results, count } = await realEstatePropertiesModel.getProperties(parsedPage, parsedSize);
+    const { results, count } = await realEstatePropertiesModel.getProperties(parsedStates, parsedPage, parsedSize);
     
     // Send back the properties as the response
     const responseData = {

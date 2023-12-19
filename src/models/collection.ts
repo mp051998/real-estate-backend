@@ -12,8 +12,6 @@ export class Collection {
 
   constructor(name: any) {
     this.name = name;
-    console.log(`Collection ${this.name} initialized`);
-    console.log(`db: ${this.db}`);
   }
 
   async count(query: Filter<Document>) {
@@ -31,9 +29,13 @@ export class Collection {
     return await this.db.collection(this.name).insertMany(data);
   }
 
-  async findOne(query: Filter<Document>) {
+  async findOne(query: Filter<Document>, project: Object | undefined = this.project) {
     await this.ensureCollectionExists();
-    const result = await this.db.collection(this.name).findOne(query).then((response) => {
+
+    const options = {
+      projection: project,
+    }
+    const result = await this.db.collection(this.name).findOne(query, options).then((response) => {
       return response;
     });
     return result;
@@ -67,11 +69,7 @@ export class Collection {
     const collections = await this.db.collections();
     const collectionExists = collections.some((collection) => collection.collectionName === this.name);
     if (!collectionExists) {
-      console.log(`Creating collection ${this.name}`);
       await this.db.createCollection(this.name);
-    }
-    else {
-      console.log(`Collection ${this.name} already exists`);
     }
   }
 }
