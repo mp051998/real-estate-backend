@@ -18,14 +18,15 @@ export class RealEstatePropertiesRoute {
 
   async getProperties(req: Request, res: Response) {
     // Get the request arguments with default values
-    const { page = '1', size = '10', states = '' } = req.query;
+    const { page = '1', size = '10', states = '', propertyType = '' } = req.query;
     const parsedStates = (typeof states === 'string') && states.length > 0 ? states.split(',') : [];
+    const parsedPropertyType = (typeof propertyType === 'string') && propertyType.length > 0 ? propertyType : '';
     const parsedPage = parseInt(page.toString(), 10);
     const parsedSize = parseInt(size.toString(), 10);
 
     // Logic to fetch all real estate properties from the database
     const realEstatePropertiesModel = new RealEstatePropertiesModel();
-    const { results, count } = await realEstatePropertiesModel.getProperties(parsedStates, parsedPage, parsedSize);
+    const { results, count } = await realEstatePropertiesModel.getProperties(parsedStates, parsedPropertyType, parsedPage, parsedSize);
     
     // Send back the properties as the response
     const responseData = {

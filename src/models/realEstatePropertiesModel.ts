@@ -6,12 +6,17 @@ export class RealEstatePropertiesModel extends Collection {
   }
 
   // Function to get all the properties
-  async getProperties(states:string[]=[], page:number=1, size:number=10) {
-    let query: { state?: { $in: string[] } } = {};
+  async getProperties(states:string[]=[], propertyType:string='', page:number=1, size:number=10) {
+    let query: { state?: { $in: string[] }, propertyType?: string } = {};
 
     if (states.length > 0) {
       query['state'] = { $in: states };
     }
+    if (propertyType.length > 0) {
+      query['propertyType'] = propertyType;
+    }
+
+    console.log(query);
 
     const count = await this.count(query);
     const results = await this.findManyPaginated(query, {}, page, size);
